@@ -33,10 +33,16 @@ int poll() {
   if (i2c_write_timeout_us(kbd_i2c, ADDR, &reg, 1, false, 5000) != 1) { n_errors++; return -1; }
   if (i2c_read_timeout_us(kbd_i2c, ADDR, ev, 2, false, 5000) != 2) { n_errors++; return -1; }
   if (ev[1] == 0) return -1;              // FIFO empty
+  return event((uint16_t)(ev[0] << 8 | ev[1]));
+}
+
+int event(uint16_t e) {
+  uint8_t state = e >> 8, key = e & 0xFF;
+  if (key == 0) return -1;
   n_events++;
-  if (ev[0] == 1) down[ev[1]] = 1;
-  else if (ev[0] == 3) down[ev[1]] = 0;
-  return ev[0] == 1 ? ev[1] : 0;          // newly pressed key, else 0
+  if (state == 1) down[key] = 1;
+  else if (state == 3) down[key] = 0;
+  return state == 1 ? key : 0;            // newly pressed key, else 0
 }
 
 bool is_down(uint8_t key) { return down[key] != 0; }

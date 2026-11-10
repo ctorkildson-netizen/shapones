@@ -1,0 +1,8 @@
+# picocalc-extras (the Bluetooth gamepad and keyboard) is a submodule pinned
+# to a release: new releases arrive as pull requests.
+version: 2
+updates:
+  - package-ecosystem: gitsubmodule
+    directory: "/"
+    schedule:
+      interval: weekly

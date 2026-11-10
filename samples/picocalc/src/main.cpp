@@ -16,6 +16,10 @@
 
 #include "audio.hpp"
 #include "kbd.hpp"
+#if NES_BT
+#include "bt.hpp"
+#include "shapones/fsys.hpp"
+#endif
 #include "lcd.hpp"
 #include "picocalc_shell.h"
 
@@ -140,9 +144,7 @@ static void update_input() {
   if (now < next_input_us) return;
   next_input_us = now + 1'000'000 / 120;
 
-  for (int i = 0; i < 8; i++) {           // drain the key FIFO
-    int k = kbd::poll();
-    if (k < 0) break;
+  auto handle = [](int k) {
     if (k > 0) dbg_key = k;
     if (k == kbd::KEY_ESC) {
       if (kbd::is_down(kbd::KEY_CTRL)) return_to_menu();
@@ -151,7 +153,21 @@ static void update_input() {
       else
         shapones::menu::show();
     }
+  };
+  for (int i = 0; i < 8; i++) {           // drain the key FIFO
+    int k = kbd::poll();
+    if (k < 0) break;
+    handle(k);
   }
+#if NES_BT
+  for (int i = 0; i < 8; i++) {           // and a Bluetooth keyboard's
+    int k = kbd::event(bt::key());
+    if (k < 0) break;
+    handle(k);
+  }
+  bt::pad_t pad = bt::pad();
+  if (pad.menu) handle(kbd::KEY_ESC);     // the pad's PS button: the menu
+#endif
 
   using namespace kbd;
   auto any = [](std::initializer_list<uint8_t> keys) {
@@ -171,6 +187,16 @@ static void update_input() {
   s.down = is_down(KEY_DOWN);
   s.left = is_down(KEY_LEFT);
   s.right = is_down(KEY_RIGHT);
+#if NES_BT
+  s.A |= pad.A;
+  s.B |= pad.B;
+  s.select |= pad.select;
+  s.start |= pad.start;
+  s.up |= pad.up;
+  s.down |= pad.down;
+  s.left |= pad.left;
+  s.right |= pad.right;
+#endif
   shapones::input::set_status(0, s);
   dbg_pad = s.raw;
 }
@@ -189,6 +215,10 @@ int main() {
   auto cfg = shapones::get_default_config();
   cfg.apu_sampling_rate = audio::sampling_rate_hz();
   shapones::init(cfg);
+#if NES_BT
+  shapones::fsys::mount();   // (Bluetooth reads its pairings from the card)
+  bt::init();
+#endif
   shapones::menu::show();
 
   audio::init();

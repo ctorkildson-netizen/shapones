@@ -11,6 +11,7 @@ static constexpr uint8_t KEY_ALT = 0xA1, KEY_LSHIFT = 0xA2, KEY_RSHIFT = 0xA3,
 
 void init();
 int poll();                // one FIFO event: -1 none, 0 not a press, else the key pressed
+int event(uint16_t ev);     // the same for an event from elsewhere ((state << 8) | key, as a Bluetooth keyboard's)
 bool is_down(uint8_t key);
 uint32_t errors();          // failed I2C reads so far (debug row)
 uint32_t events();          // key events read so far

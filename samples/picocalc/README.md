@@ -32,6 +32,26 @@ ClockworkPi's earlier PicoCalc patch for ShapoNES.
 | Esc | ShapoNES menu |
 | Ctrl+Esc | back to the PicoCalc boot menu |
 
+## Bluetooth (Pico 2 W)
+
+The Bluetooth build, `shapones_picocalc_bt.uf2`, also takes a Bluetooth
+gamepad and keyboard. Pair them first with `btpair` from
+[picocalc-extras](https://github.com/ctorkildson-netizen/picocalc-extras)
+(2.2 or later); the pairings are kept on the SD card. The PicoCalc's own
+keys still work alongside.
+
+| Gamepad (PS4 names) | Button |
+|---|---|
+| D-pad or left stick | D-pad |
+| Circle (right) | A |
+| Cross (bottom) | B |
+| Options | Start |
+| Share | Select |
+| PS | ShapoNES menu |
+
+A and B sit where they do on an NES pad. Other gamepads number their
+buttons much as a PS4 pad does, but not all; Square and Triangle are free.
+
 ROMs are read from `/nes` if it exists, otherwise from the root; the
 list shows only folders and `.nes` files. Saved states go in `/nes-saves`.
 
@@ -45,6 +65,14 @@ ninja
 ```
 
 Copy `shapones_picocalc.uf2` to the SD card's `pico2-apps` folder.
+
+The Bluetooth build needs a Pico SDK whose BTstack has the newer HID host
+(as picocalc-extras says), and the submodule:
+
+```sh
+git submodule update --init
+cmake -G Ninja -DNES_BT=ON ..
+```
 
 ## Tested
 

@@ -1,10 +1,22 @@
 # ShapoNES for the ClockworkPi PicoCalc (Pico 2 / Pico 2 W, RP2350)
 cmake_minimum_required(VERSION 3.13)
 
-set(PICO_BOARD pico2 CACHE STRING "Board type")
+# NES_BT=ON: the Bluetooth build, shapones_picocalc_bt, for a Pico 2 W: a
+# gamepad and keyboard paired with btpair (picocalc-extras, a submodule in
+# modules/; it needs the Pico SDK's newer BTstack, as picocalc-extras says).
+option(NES_BT "Bluetooth gamepad and keyboard (Pico 2 W)" OFF)
+if (NES_BT)
+    set(PICO_BOARD pico2_w CACHE STRING "Board type" FORCE)
+else()
+    set(PICO_BOARD pico2 CACHE STRING "Board type")
+endif()
 include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
 
-set(APP_NAME shapones_picocalc)
+if (NES_BT)
+    set(APP_NAME shapones_picocalc_bt)
+else()
+    set(APP_NAME shapones_picocalc)
+endif()
 project(${APP_NAME} C CXX ASM)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
@@ -44,6 +56,16 @@ target_link_libraries(${APP_NAME} PRIVATE
     hardware_spi hardware_i2c hardware_pwm hardware_dma hardware_irq
     hardware_sync hardware_watchdog hardware_clocks
 )
+
+if (NES_BT)
+    include(${CMAKE_CURRENT_LIST_DIR}/modules/picocalc-extras/bluetooth/bluetooth.cmake)
+    target_sources(${APP_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/bt/bt.cpp)
+    target_include_directories(${APP_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/bt)
+    # the radio's SPI runs off the system clock, which is overclocked to 250 MHz
+    # here: divided by 3, it stays under the radio chip's 50 MHz
+    target_compile_definitions(${APP_NAME} PRIVATE NES_BT=1 CYW43_PIO_CLOCK_DIV_INT=3)
+    target_link_libraries(${APP_NAME} PRIVATE picocalc_btkbd)
+endif()
 
 pico_set_program_name(${APP_NAME} "ShapoNES for PicoCalc")
 pico_enable_stdio_usb(${APP_NAME} 0)

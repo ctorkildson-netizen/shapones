@@ -1,0 +1,3 @@
+[submodule "samples/picocalc/modules/picocalc-extras"]
+	path = samples/picocalc/modules/picocalc-extras
+	url = https://github.com/ctorkildson-netizen/picocalc-extras
