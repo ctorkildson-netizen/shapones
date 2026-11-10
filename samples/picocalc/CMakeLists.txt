@@ -24,6 +24,10 @@ pico_sdk_init()
 
 add_executable(${APP_NAME})
 add_compile_definitions(SHAPONES_ENABLE_LOG=0)
+option(NES_DEBUG_ROW "a row of squares above the picture: what the emulator receives" OFF)
+if (NES_DEBUG_ROW)
+    add_compile_definitions(NES_DEBUG_ROW=1)
+endif()
 
 set(SHAPONES_PATH ${CMAKE_CURRENT_LIST_DIR}/../../core)
 set(XIAO_PATH ${CMAKE_CURRENT_LIST_DIR}/../xiao)

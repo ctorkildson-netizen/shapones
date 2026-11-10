@@ -80,6 +80,20 @@ static void draw_debug_row() {
   x += S + 9;
   for (int i = 7; i >= 0; i--, x += S + 1)
     lcd::fill(x, Y, S, S, (dbg_key >> i) & 1 ? 0xFFE0 : 0x2104);
+#if NES_BT
+  // the gamepad: red radio off, grey starting/none paired, yellow waiting,
+  // blue searching/pairing, green connected; then white/grey flips on each report
+  static const uint16_t STATE_COLOUR[] = {0xF800, 0x8410, 0x4208, 0xFFE0, 0x001F, 0x001F, 0x07E0};
+  static uint32_t shown_reports;
+  static bool rep_flip;
+  x += 9;
+  int st = bt::pad_state();
+  lcd::fill(x, Y, S, S, st >= 0 && st <= 6 ? STATE_COLOUR[st] : 0xF81F);
+  x += S + 3;
+  uint32_t r = bt::pad_reports();
+  if (r != shown_reports) { shown_reports = r; rep_flip = !rep_flip; }
+  lcd::fill(x, Y, S, S, rep_flip ? 0xFFFF : 0x8410);
+#endif
 }
 
 static bool wait_vsync() {
