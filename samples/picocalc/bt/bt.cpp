@@ -32,12 +32,10 @@ void init() {
   btkbd_merge(false);
 }
 
-static volatile uint32_t n_reports;
-
 pad_t pad() {
   static uint32_t was;
   btkbd_pad_t p;
-  if (btkbd_gamepad(&p)) n_reports++;
+  btkbd_gamepad(&p);
   pad_t r{};
   int h = p.hat;
   r.up = h == 7 || h == 0 || h == 1 || p.y < -STICK;
@@ -49,12 +47,14 @@ pad_t pad() {
   r.select = (p.buttons & SELECT_BUTTONS) != 0;
   r.start = (p.buttons & START_BUTTONS) != 0;
   r.menu = (p.buttons & MENU_BUTTONS) && !(was & MENU_BUTTONS);
+  r.square = (p.buttons & BTN(1)) && !(was & BTN(1));
   was = p.buttons;
   return r;
 }
 
 uint16_t key() { return btkbd_read(); }
 int pad_state() { return btkbd_device_state(BTKBD_GAMEPAD); }
-uint32_t pad_reports() { return n_reports; }
+uint32_t pad_reports() { return btkbd_gamepad_reports(); }
+bool sniff(int ms) { return btkbd_gamepad_sniff(ms); }
 
 }  // namespace picocalc::bt
