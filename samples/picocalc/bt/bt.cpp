@@ -47,7 +47,6 @@ pad_t pad() {
   r.select = (p.buttons & SELECT_BUTTONS) != 0;
   r.start = (p.buttons & START_BUTTONS) != 0;
   r.menu = (p.buttons & MENU_BUTTONS) && !(was & MENU_BUTTONS);
-  r.square = (p.buttons & BTN(1)) && !(was & BTN(1));
   was = p.buttons;
   return r;
 }
@@ -55,6 +54,5 @@ pad_t pad() {
 uint16_t key() { return btkbd_read(); }
 int pad_state() { return btkbd_device_state(BTKBD_GAMEPAD); }
 uint32_t pad_reports() { return btkbd_gamepad_reports(); }
-bool sniff(int ms) { return btkbd_gamepad_sniff(ms); }
 
 }  // namespace picocalc::bt

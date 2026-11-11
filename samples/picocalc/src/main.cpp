@@ -63,7 +63,6 @@ static volatile uint8_t dbg_pad = 0, dbg_key = 0;
 #if NES_BT
 // per second: reports from the pad, frames skipped; and the sniff setting
 static volatile uint32_t dbg_rate = 0, dbg_skips = 0, dbg_skipped = 0;
-static volatile int dbg_sniff = 0;
 #endif
 static uint32_t dbg_shown_events = 0, dbg_shown_errors = 0;
 static bool dbg_ev_flip = false, dbg_err_flip = false;
@@ -99,8 +98,7 @@ static void draw_debug_row() {
   if (r != shown_reports) { shown_reports = r; rep_flip = !rep_flip; }
   lcd::fill(x, Y, S, S, rep_flip ? 0xFFFF : 0x8410);
   // a bar: the pad's reports a second, 1 pixel for each 4 (a tick every 100);
-  // under it a red bar, frames skipped a second, 4 pixels each; at its left
-  // the sniff setting: grey off, yellow 8 ms, cyan 16 ms (Square changes it)
+  // under it a red bar, frames skipped a second, 4 pixels each
   constexpr int BY = 28;
   int w = dbg_rate / 4; if (w > 300) w = 300;
   lcd::fill(10, BY, w, 4, 0x07E0);
@@ -109,7 +107,6 @@ static void draw_debug_row() {
   int k = dbg_skips * 4; if (k > 300) k = 300;
   lcd::fill(10, BY + 7, k, 3, 0xF800);
   lcd::fill(10 + k, BY + 7, 300 - k, 3, 0x0000);
-  lcd::fill(0, BY, 7, 10, dbg_sniff == 0 ? 0x8410 : dbg_sniff == 8 ? 0xFFE0 : 0x07FF);
 #endif
 }
 
@@ -203,12 +200,6 @@ static void update_input() {
   bt::pad_t pad = bt::pad();
   if (pad.menu) handle(kbd::KEY_ESC);     // the pad's PS button: the menu
 #if NES_DEBUG_ROW
-  if (pad.square) {                       // (testing) Square: sniff 8 ms, off, 16 ms, off
-    static int step;
-    static const int SNIFF[4] = {8, 0, 16, 0};
-    dbg_sniff = SNIFF[step++ & 3];
-    bt::sniff(dbg_sniff);
-  }
   static uint64_t second;
   static uint32_t reports_then, skipped_then;
   if (now >= second) {
