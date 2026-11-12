@@ -72,6 +72,7 @@ if (NES_BT)
 endif()
 
 pico_set_program_name(${APP_NAME} "ShapoNES for PicoCalc")
+pico_set_program_version(${APP_NAME} "1.0")
 pico_enable_stdio_usb(${APP_NAME} 0)
 pico_enable_stdio_uart(${APP_NAME} 0)
 pico_add_extra_outputs(${APP_NAME})

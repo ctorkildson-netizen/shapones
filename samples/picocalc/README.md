@@ -1,4 +1,4 @@
-# ShapoNES for the ClockworkPi PicoCalc
+# ShapoNES for the ClockworkPi PicoCalc (picocalc-nes 1.0)
 
 A port to the [ClockworkPi PicoCalc](https://www.clockworkpi.com/picocalc)
 with a Raspberry Pi Pico 2 or Pico 2 W (RP2350). It builds on the XIAO
@@ -37,8 +37,9 @@ ClockworkPi's earlier PicoCalc patch for ShapoNES.
 The Bluetooth build, `shapones_picocalc_bt.uf2`, also takes a Bluetooth
 gamepad and keyboard. Pair them first with `btpair` from
 [picocalc-extras](https://github.com/ctorkildson-netizen/picocalc-extras)
-(2.2 or later); the pairings are kept on the SD card. The PicoCalc's own
-keys still work alongside.
+(2.2.1 or later); the pairings are kept on the SD card. The PicoCalc's own
+keys still work alongside. After pairing, pressing the pad's PS (home)
+button connects it.
 
 | Gamepad (PS4 names) | Button |
 |---|---|
@@ -51,6 +52,8 @@ keys still work alongside.
 
 A and B sit where they do on an NES pad. Other gamepads number their
 buttons much as a PS4 pad does, but not all; Square and Triangle are free.
+A pad reacts a few milliseconds behind the PicoCalc's keys, well under a
+frame.
 
 ROMs are read from `/nes` if it exists, otherwise from the root; the
 list shows only folders and `.nes` files. Saved states go in `/nes-saves`.
@@ -77,8 +80,13 @@ cmake -G Ninja -DNES_BT=ON ..
 ## Tested
 
 On a PicoCalc with a Pico 2 W: Super Mario Bros., Mega Man, The Legend of
-Zelda and Wizardry play, with sound (saved states untested). Tetris
-doesn't: its playfield isn't drawn.
+Zelda and Wizardry play, with sound (saved states untested); Super Mario
+Bros. and Mega Man with a PS4 pad too. Tetris doesn't: its playfield isn't
+drawn.
 
-Setting `NES_DEBUG_ROW` to 1 in `src/main.cpp` shows the buttons the
-emulator receives, as a row of squares above the picture.
+Most games run at full speed but draw about 35 frames a second rather
+than 60: the emulator skips drawing a frame when it falls behind.
+
+Building with `-DNES_DEBUG_ROW=ON` shows the buttons the emulator
+receives, as a row of squares above the picture; the Bluetooth build adds
+the gamepad's state, its reports a second, and frames skipped.
