@@ -84,8 +84,8 @@ Zelda and Wizardry play, with sound (saved states untested); Super Mario
 Bros. and Mega Man with a PS4 pad too. Tetris doesn't: its playfield isn't
 drawn.
 
-Most games run at full speed but draw about 35 frames a second rather
-than 60: the emulator skips drawing a frame when it falls behind.
+Super Mario Bros. runs at full speed but is drawn about 35 times a second
+rather than 60: the emulator skips drawing a frame when it falls behind.
 
 Building with `-DNES_DEBUG_ROW=ON` shows the buttons the emulator
 receives, as a row of squares above the picture; the Bluetooth build adds
